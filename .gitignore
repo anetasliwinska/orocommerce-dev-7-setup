@@ -1,0 +1,12 @@
+/orocommerce-application/
+
+# Local env file (keep locally, don't push secrets)
+/.env
+
+# Commit `.env` if it contains only safe defaults.
+# Keep real secrets in local override files:
+/.env.local
+/.env.*.local
+
+# Optional local docker overrides
+docker-compose.override.yml
