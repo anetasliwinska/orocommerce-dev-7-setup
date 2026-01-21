@@ -5,7 +5,7 @@ Ten plik zapisuje **zmianę podejścia**, gdy dochodzisz do wniosku, że długof
 ## TL;DR
 
 - **Repo 1 (setup)**: `orocommerce-dev-setup` – Docker/WSL/Nginx/PHP, instrukcje, pliki w `env/`, bez commitowania `orocommerce-application/`.
-- **Repo 2 (application)**: np. `orocommerce-application-hy` – **pełny kod OroCommerce** + Twoje customizacje (bundle/theme w `src/...`).
+- **Repo 2 (application)**: np. `orocommerce-application-custom` – **pełny kod OroCommerce** + Twoje customizacje (bundle/theme w `src/...`).
 - W `orocommerce-application/` **nie rób `git init`**, bo to już jest repo. Najczyściej: **push istniejącego repo do Twojego GitHuba**.
 
 ---
@@ -40,7 +40,7 @@ git remote -v
 ### 0) Załóż puste repo na GitHubie
 
 Na GitHubie utwórz nowe (najlepiej private) repo, np.:
-- `orocommerce-application-hy`
+- `orocommerce-application-custom`
 
 Nie dodawaj README/.gitignore/licencji (ma być puste).
 
@@ -75,7 +75,7 @@ Zwykle masz `origin` ustawione na `oroinc/orocommerce-application`. Zmieniamy to
 
 ```bash
 git remote rename origin upstream
-git remote add origin https://github.com/TWOJ_LOGIN/orocommerce-application-hy.git
+git remote add origin https://github.com/TWOJ_LOGIN/orocommerce-application-custom.git
 ```
 
 Sprawdź:

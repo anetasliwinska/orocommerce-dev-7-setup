@@ -36,10 +36,19 @@ Przed rozpoczęciem upewnij się, że masz:
 
 ## 2. Struktura projektu
 
-Przed rozpoczęciem instalacji, upewnij się, że masz następującą strukturę projektu (katalog `orocommerce-application` zostanie pobrany z repozytorium Git):
+Przed rozpoczęciem instalacji, upewnij się, że masz następującą strukturę projektu.
+
+W tym podejściu trzymamy **dwa repozytoria**:
+- **repo setup** (to repo): Docker/WSL/Nginx/PHP + pliki w `env/`
+- **repo aplikacji** (osobne): pełny kod `orocommerce-application` (OroCommerce) + Twoje modyfikacje
+
+Katalog `orocommerce-application/` jest więc **klonowany jako osobne repo** (np. z Twojego repo `orocommerce-application-custom`) i leży obok plików dockerowych.
 
 ```
 orocommerce-dev/
+├── env/
+│   └── orocommerce-application/
+│       └── .env-app.local
 ├── docker/
 │   └── php/
 │       └── Dockerfile
@@ -54,7 +63,7 @@ orocommerce-dev/
 
 ### Pliki konfiguracyjne
 
-Poniżej znajdują się zawartości wszystkich plików konfiguracyjnych, które muszą być utworzone w projekcie:
+Jeśli klonujesz repo setup, te pliki konfiguracyjne są już w projekcie. Poniżej ich zawartość jest podana jako referencja (albo na wypadek, gdybyś odtwarzał konfigurację ręcznie):
 
 #### 1. `docker-compose.yml` (główny katalog projektu)
 
@@ -561,7 +570,7 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
 ## 7. Pobranie projektu
 
-### Krok 4.1: Utworzenie struktury projektu
+### Krok 4.1: Klonowanie repo setup (Docker/konfiguracja)
 
 1. **Przejdź do katalogu domowego (zalecane):**
 
@@ -571,61 +580,35 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
    > **Zalecenie:** Najlepiej utworzyć projekt bezpośrednio w folderze domowym (`~`), co ułatwia dostęp i zarządzanie projektem.
 
-2. **Utwórz katalog projektu:**
+2. **Sklonuj repo setup:**
 
    ```bash
-   mkdir -p orocommerce-dev
-   cd orocommerce-dev
-   ```
-
-3. **Utwórz strukturę katalogów:**
-
-   ```bash
-   mkdir -p docker/php nginx/conf.d php/conf.d
-   ```
-
-4. **Utwórz pliki konfiguracyjne** zgodnie z sekcją "Struktura projektu" powyżej:
-
-   - `docker-compose.yml` (w głównym katalogu)
-   - `docker/php/Dockerfile`
-   - `nginx/conf.d/default.conf`
-   - `php/conf.d/memory-limit.ini`
-
-   Możesz skopiować zawartość plików z sekcji "Struktura projektu" i utworzyć je używając edytora `vim`:
-
-   ```bash
-   vim docker-compose.yml
-   # Wklej zawartość, zapisz (:wq)
-
-   vim docker/php/Dockerfile
-   # Wklej zawartość, zapisz (:wq)
-
-   vim nginx/conf.d/default.conf
-   # Wklej zawartość, zapisz (:wq)
-
-   vim php/conf.d/memory-limit.ini
-   # Wklej zawartość, zapisz (:wq)
-   ```
-
-### Krok 4.2: Klonowanie orocommerce-application z Git
-
-1. **Sklonuj repozytorium orocommerce-application do katalogu projektu:**
-
-   ```bash
-   git clone <URL_REPOZYTORIUM_OROCOMMERCE> orocommerce-application
-   ```
-
-   > **Uwaga:** Zastąp `<URL_REPOZYTORIUM_OROCOMMERCE>` rzeczywistym URL repozytorium Git z aplikacją OroCommerce.
-
-2. **Przejdź do katalogu orocommerce-application i przełącz się na stabilną wersję developerską:**
-
-   ```bash
-   cd ~/orocommerce-dev/orocommerce-application
-   git checkout 6.1.6
+   git clone <URL_REPO_SETUP> orocommerce-dev
    cd ~/orocommerce-dev
    ```
 
-   > **Uwaga:** Tag `6.1.6` to stabilna wersja developerska OroCommerce na dzień tworzenia tej instrukcji. W przyszłości mogą być dostępne nowsze wersje. Jeśli potrzebujesz innej wersji lub najnowszej, sprawdź dostępne tagi komendą `git tag` i wybierz odpowiedni.
+   > **Uwaga:** Zastąp `<URL_REPO_SETUP>` adresem do repo z dockerem i instrukcjami (np. `orocommerce-dev-setup`).
+
+### Krok 4.2: Klonowanie repo aplikacji (`orocommerce-application`)
+
+1. **Sklonuj Twoje repo aplikacji do katalogu projektu:**
+
+   ```bash
+   cd ~/orocommerce-dev
+   git clone <URL_TWOJEGO_REPO_APLIKACJI> orocommerce-application
+   ```
+
+   > **Uwaga:** Zastąp `<URL_TWOJEGO_REPO_APLIKACJI>` adresem do Twojego repo z pełnym kodem OroCommerce + zmianami (np. `orocommerce-application-custom`).
+
+2. **(Opcjonalnie) Dodaj `upstream` do oficjalnego Oro, żeby łatwiej aktualizować bazę kodu:**
+
+   ```bash
+   cd ~/orocommerce-dev/orocommerce-application
+   git remote add upstream https://github.com/oroinc/orocommerce-application.git
+   git fetch upstream --tags
+   ```
+
+   > **Uwaga:** Szczegóły podejścia `origin` (Twoje repo) + `upstream` (Oro) są opisane w `GIT_PODEJSCIE_OROCOMMERCE.md`.
 
 3. **Sprawdź strukturę projektu:**
 
@@ -673,7 +656,8 @@ Powinieneś zobaczyć:
 
 ### Krok 5.3: Konfiguracja pliku .env-app.local
 
-Plik `.env-app.local` trzymamy w tym repo w katalogu `env/`, żeby nie commitować całego `orocommerce-application/` (który jest klonowany osobno).
+Plik `.env-app.local` trzymamy w repo setup w katalogu `env/` jako template, a potem kopiujemy go do repo aplikacji.
+Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane dostępowe).
 
 1. **W głównym katalogu projektu skopiuj plik do aplikacji:**
 
