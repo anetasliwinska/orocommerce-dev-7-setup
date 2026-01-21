@@ -81,10 +81,21 @@ class CustomStorefrontThemeBundle extends Bundle
 
 ### 1.2. Zarejestruj bundle w `src/AppKernel.php`
 
-W Twoim skeletonie jest sekcja `// bundles` w `src/AppKernel.php` — dodaj tam instancję:
+W Twoim skeletonie jest sekcja `// bundles` w `src/AppKernel.php` — dodaj tam w metodzie `registerBundles()` instancję bundla. Znajdziesz w niej fragment:
 
 ```php
-$bundles[] = new Custom\Bundle\StorefrontThemeBundle\CustomStorefrontThemeBundle();
+$bundles = array(
+    // bundles
+);
+```
+
+Dodaj swój bundle **w tej tablicy** (w środku nawiasów), np. tak:
+
+```php
+$bundles = array(
+    // bundles
+    new Custom\Bundle\StorefrontThemeBundle\CustomStorefrontThemeBundle(),
+);
 ```
 
 Po tym standardowo:
@@ -131,7 +142,7 @@ php bin/console oro:layout:config:dump-reference
 
 Utwórz np.:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/public/hy_storefront/scss/styles.scss`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/public/custom_storefront/scss/styles.scss`
 
 Przykład:
 
@@ -146,7 +157,7 @@ Przykład:
 
 Utwórz:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/config/assets.yml`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/config/assets.yml`
 
 Przykład (dodanie na końcu głównego bundla CSS, żeby mieć najwyższy priorytet):
 
@@ -161,7 +172,52 @@ Ważne:
 - Ścieżka w `inputs` wskazuje na plik w `public/bundles/...` (czyli po `oro:assets:install`).
 - Jeśli chcesz **nadpisywać zmienne SCSS** (a nie tylko pisać selektory), to taki plik musisz wpiąć **wcześniej** w listę `inputs` (przed plikami, które tych zmiennych używają).
 
----
+#### Jak ustalić poprawną ścieżkę w `assets.yml`?
+
+W `assets.yml` **nie podajesz ścieżki do pliku w `Resources/`**, tylko ścieżkę do pliku **po instalacji assetów** do katalogu publicznego aplikacji.
+
+Schemat jest zawsze taki:
+
+- plik źródłowy: `<Bundle>/Resources/public/...`
+- po instalacji assetów: `public/bundles/<bundle_alias>/...`
+- więc w `assets.yml`: `bundles/<bundle_alias>/<ścieżka_z_Resources/public>`
+
+Przykład:
+
+- plik w bundle:
+  `src/Custom/Bundle/StorefrontThemeBundle/Resources/public/custom_storefront/scss/styles.scss`
+- po `php bin/console oro:assets:install --symlink --env=dev` będzie pod:
+  `public/bundles/customstorefronttheme/custom_storefront/scss/styles.scss`
+- dlatego w `assets.yml` wpisujesz:
+  `bundles/customstorefronttheme/custom_storefront/scss/styles.scss`
+
+**Skąd się bierze `customstorefronttheme`?** To tzw. *bundle alias* — zwykle wyliczany z nazwy klasy bundle:
+`CustomStorefrontThemeBundle` → `customstorefronttheme`.
+
+**Jak potwierdzić na 100%?** Po `oro:assets:install` sprawdź, jaki katalog pojawił się w `public/bundles/` i użyj dokładnie tej nazwy w ścieżce.
+
+**Najczęstszy błąd:** trzymanie SCSS w `Resources/views/...` zamiast w `Resources/public/...`. Tylko `Resources/public` jest publikowane do `public/bundles/...`.
+
+### 3.3. Po dodaniu SCSS i wpisu w `assets.yml` wykonaj instalację assetów + build
+
+Po dodaniu nowego pliku w `Resources/public` (np. `styles.scss`) i dopisaniu go w `assets.yml` wykonaj kolejny krok — **instalację assetów (symlink)**, żeby plik był dostępny pod `public/bundles/...`:
+
+```bash
+cd /var/www/orocommerce
+php bin/console oro:assets:install --symlink --env=dev
+```
+Następnie uruchom build, żeby SCSS został skompilowany do finalnego CSS:
+
+```bash
+npm run watch
+# albo produkcyjnie:
+# npm run build
+```
+
+Dlaczego to jest potrzebne?
+- `oro:assets:install --symlink` publikuje pliki z `Resources/public` do `public/bundles/<bundle_alias>/....`
+- W `assets.yml` podajesz ścieżki w formacie `bundles/<bundle_alias>/...`, więc bez tego kroku wpis może wskazywać na plik, którego jeszcze nie ma w `public/`.
+- Samo `oro:assets:install` nie kompiluje SCSS — kompilację robi dopiero `npm run watch` / `npm run build`.
 
 ## 4) Dołóż własny JS (opcjonalnie) przez `jsmodules.yml`
 
@@ -182,7 +238,7 @@ dynamic-imports:
 
 I plik JS:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/public/hy_storefront/js/app/components/hello-component.js`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/public/custom_storefront/js/app/components/hello-component.js`
 
 ```javascript
 define(function(require) {
@@ -282,7 +338,7 @@ Najczęstsza ścieżka w UI:
 
 - **System → Websites → (Twoja witryna) → Configuration → Commerce → Design → Theme**
 
-Wybierz `Hy Storefront` i zapisz konfigurację (pamiętaj o właściwym scope: Website/Organization/Global).
+Wybierz `Custom Storefront` i zapisz konfigurację (pamiętaj o właściwym scope: Website/Organization/Global).
 
 Po zmianie theme często potrzebujesz:
 
@@ -298,7 +354,7 @@ Po dodaniu/zmianie plików w `Resources/public` uruchom (w kontenerze `php`):
 
 ```bash
 cd /var/www/orocommerce
-php bin/console oro:assets:install --symlink --env=dev
+php bin/console assets:install --symlink --env=dev
 ```
 
 Następnie build:
