@@ -12,25 +12,25 @@ Ten dokument opisuje **najprostszy i najbardziej utrzymywalny** sposób zbudowan
 
 ## 0) Założenia i konwencje
 
-- **Nazwa theme** w Oro to nazwa katalogu pod `Resources/views/layouts/<theme_name>/...`, np. `hy_storefront`.
+- **Nazwa theme** w Oro to nazwa katalogu pod `Resources/views/layouts/<theme_name>/...`, np. `custom_storefront`.
 - **Parent theme** dla OroCommerce 6.1 to zazwyczaj `default`.
 - Pliki z `Resources/public` po `oro:assets:install` lądują (symlink/kopia) pod:
   - `public/bundles/<bundle_alias>/...`
-  - np. dla bundle `HyStorefrontThemeBundle` alias zwykle będzie `hystorefronttheme`.
+  - np. dla bundle `CustomStorefrontThemeBundle` alias zwykle będzie `customstorefronttheme`.
 
 ---
 
 ## 1) Utwórz własny bundle na theme (najważniejsze: nie edytuj `vendor/`)
 
-W aplikacji (`orocommerce-application`) masz autoload PSR-4 na `src/`, więc najprościej trzymać bundle w `src/Hy/Bundle/...`.
+W aplikacji (`orocommerce-application`) masz autoload PSR-4 na `src/`, więc najprościej trzymać bundle w `src/Custom/Bundle/...`.
 
 ### Co znaczy „autoload PSR-4”
 
-To znaczy, że Composer ma skonfigurowane **automatyczne ładowanie klas PHP** wg standardu **PSR‑4**: gdy w kodzie używasz klasy (np. `Hy\Bundle\StorefrontThemeBundle\HyStorefrontThemeBundle`), to Composer potrafi znaleźć jej plik na dysku na podstawie **namespace** i reguły mapowania. W tej aplikacji mapowanie prowadzi do katalogu `src/` (masz to w `orocommerce-application/composer.json` w sekcji `autoload`), więc możesz trzymać własne klasy/bundle w `orocommerce-application/src/...` bez ręcznego `require`.
+To znaczy, że Composer ma skonfigurowane **automatyczne ładowanie klas PHP** wg standardu **PSR‑4**: gdy w kodzie używasz klasy (np. `Custom\Bundle\StorefrontThemeBundle\CustomStorefrontThemeBundle`), to Composer potrafi znaleźć jej plik na dysku na podstawie **namespace** i reguły mapowania. W tej aplikacji mapowanie prowadzi do katalogu `src/` (masz to w `orocommerce-application/composer.json` w sekcji `autoload`), więc możesz trzymać własne klasy/bundle w `orocommerce-application/src/...` bez ręcznego `require`.
 
 ### Co znaczy „trzymany we własnym bundle”
 
-W OroCommerce/Symfony **bundle** to moduł aplikacji (pakiet kodu i zasobów). „Trzymany we własnym bundle” znaczy, że Twoją theme (pliki `theme.yml`, layout YAML, Twig, SCSS/JS, obrazki) umieszczasz **w katalogu własnego bundle**, np. w `orocommerce-application/src/Hy/Bundle/StorefrontThemeBundle/...`, zamiast edytować pliki w `vendor/`.
+W OroCommerce/Symfony **bundle** to moduł aplikacji (pakiet kodu i zasobów). „Trzymany we własnym bundle” znaczy, że Twoją theme (pliki `theme.yml`, layout YAML, Twig, SCSS/JS, obrazki) umieszczasz **w katalogu własnego bundle**, np. w `orocommerce-application/src/Custom/Bundle/StorefrontThemeBundle/...`, zamiast edytować pliki w `vendor/`.
 
 To daje:
 
@@ -45,15 +45,15 @@ Przykładowa struktura:
 ```text
 orocommerce-application/
 └── src/
-    └── Hy/
+    └── Custom/
         └── Bundle/
             └── StorefrontThemeBundle/
-                ├── HyStorefrontThemeBundle.php
+                ├── CustomStorefrontThemeBundle.php
                 └── Resources/
                     ├── public/
                     └── views/
                         └── layouts/
-                            └── hy_storefront/
+                            └── custom_storefront/
                                 ├── theme.yml
                                 ├── layout.yml
                                 ├── config/
@@ -65,16 +65,16 @@ orocommerce-application/
 
 Minimalna klasa bundle (utwórz plik):
 
-`orocommerce-application/src/Hy/Bundle/StorefrontThemeBundle/HyStorefrontThemeBundle.php`
+`orocommerce-application/src/Custom/Bundle/StorefrontThemeBundle/CustomStorefrontThemeBundle.php`
 
 ```php
 <?php
 
-namespace Hy\Bundle\StorefrontThemeBundle;
+namespace Custom\Bundle\StorefrontThemeBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class HyStorefrontThemeBundle extends Bundle
+class CustomStorefrontThemeBundle extends Bundle
 {
 }
 ```
@@ -84,7 +84,7 @@ class HyStorefrontThemeBundle extends Bundle
 W Twoim skeletonie jest sekcja `// bundles` w `src/AppKernel.php` — dodaj tam instancję:
 
 ```php
-$bundles[] = new Hy\Bundle\StorefrontThemeBundle\HyStorefrontThemeBundle();
+$bundles[] = new Custom\Bundle\StorefrontThemeBundle\CustomStorefrontThemeBundle();
 ```
 
 Po tym standardowo:
@@ -99,13 +99,13 @@ php bin/console cache:clear --env=dev
 
 Utwórz:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/theme.yml`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/theme.yml`
 
 Minimalny przykład:
 
 ```yaml
 parent: default
-label: Hy Storefront
+label: Custom Storefront
 description: 'Custom child theme dla storefrontu (OroCommerce 6.1)'
 groups: [ commerce ]
 ```
@@ -153,7 +153,7 @@ Przykład (dodanie na końcu głównego bundla CSS, żeby mieć najwyższy prior
 ```yaml
 styles:
     inputs:
-        - 'bundles/hystorefronttheme/hy_storefront/scss/styles.scss'
+        - 'bundles/customstorefronttheme/custom_storefront/scss/styles.scss'
 ```
 
 Ważne:
@@ -167,17 +167,17 @@ Ważne:
 
 Jeśli chcesz dodać moduły JS zgodne z mechaniką Oro (requirejs/dynamic-imports), dodaj plik:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/config/jsmodules.yml`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/config/jsmodules.yml`
 
 Minimalny przykład (alias + dynamic import w grupie `commons`):
 
 ```yaml
 aliases:
-    hy/js/app/components/hello-component$: hystorefronttheme/hy_storefront/js/app/components/hello-component
+    custom/js/app/components/hello-component$: customstorefronttheme/custom_storefront/js/app/components/hello-component
 
 dynamic-imports:
     commons:
-        - hy/js/app/components/hello-component
+        - custom/js/app/components/hello-component
 ```
 
 I plik JS:
@@ -190,7 +190,7 @@ define(function(require) {
 
     return function initHello() {
         // eslint-disable-next-line no-console
-        console.log('Hello from Hy storefront theme');
+        console.log('Hello from Custom storefront theme');
     };
 });
 ```
@@ -207,7 +207,7 @@ Layout updates trzymasz w katalogach typu:
 
 Przykład: domyślna strona główna korzysta z `oro_frontend_root`, więc tworzysz:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/oro_frontend_root/layout.yml`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/oro_frontend_root/layout.yml`
 
 Minimalny przykład (ustawienie `class` na `body` i ukrycie `page_title`):
 
@@ -250,7 +250,7 @@ W Oro storefront Twig najczęściej działa jako “renderer bloków layoutu” 
 
 Np.:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/layout.html.twig`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/layout.html.twig`
 
 I zdefiniuj/override’uj konkretne bloki Twig (po nazwie bloku w systemie layoutu).
 
@@ -258,13 +258,13 @@ I zdefiniuj/override’uj konkretne bloki Twig (po nazwie bloku w systemie layou
 
 Utwórz (lub dodaj do) plik:
 
-`src/Hy/Bundle/StorefrontThemeBundle/Resources/views/layouts/hy_storefront/layout.yml`
+`src/Custom/Bundle/StorefrontThemeBundle/Resources/views/layouts/custom_storefront/layout.yml`
 
 ```yaml
 layout:
     actions:
         - '@setBlockTheme':
-            themes: '@HyStorefrontTheme/layouts/hy_storefront/layout.html.twig'
+            themes: '@CustomStorefrontTheme/layouts/custom_storefront/layout.html.twig'
 ```
 
 Ważne:
