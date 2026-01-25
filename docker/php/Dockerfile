@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     curl
+    
 
 # PHP extensions wymagane przez Oro
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -22,6 +23,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         gd \
         pcntl \
         opcache
+
+# Node.js 22 + npm (wymagane do budowy assetów Oro 6.1)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+&& apt-get install -y nodejs \
+&& node -v \
+&& npm -v
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

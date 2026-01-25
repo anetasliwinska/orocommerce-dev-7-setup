@@ -330,15 +330,38 @@ Ważne:
 
 ---
 
-## 7) Aktywacja theme w panelu admina (storefront)
+## 7.0) (OroCommerce 6.x) Dodaj theme do `oro_layout.enabled_themes` (żeby była dostępna w UI)
+
+W OroCommerce 6.x (Theme Configurations) theme musi być **włączona na liście `enabled_themes`**, inaczej nie pojawi się w panelu do wyboru.
+
+Edytuj plik:
+
+`orocommerce-application/config/config.yml`
+
+I dopisz swoją theme do listy:
+
+```yaml
+oro_layout:
+    enabled_themes:
+        - default
+        - custom_storefront
+```
+
+Następnie wyczyść cache:
+
+```bash
+php bin/console cache:clear --env=dev
+```
+
+## 7) Aktywacja theme w panelu admina (/admin/)
 
 W OroCommerce storefront theme ustawiasz zwykle **per Website** (scope).
 
 Najczęstsza ścieżka w UI:
 
-- **System → Websites → (Twoja witryna) → Configuration → Commerce → Design → Theme**
+- **System → Theme Configurations → Create Theme Configuration**
 
-Wybierz `Custom Storefront` i zapisz konfigurację (pamiętaj o właściwym scope: Website/Organization/Global).
+W polu `Theme` wybierz `Custom Storefront` a w `Name` np.: "Custom Storefront (dev)" i zapisz konfigurację (pamiętaj o właściwym scope: Website/Organization/Global).
 
 Po zmianie theme często potrzebujesz:
 

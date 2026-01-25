@@ -158,6 +158,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         pcntl \
         opcache
 
+# Node.js 22 + npm (wymagane do budowy assetów Oro 6.1)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && node -v \
+    && npm -v
+
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -522,6 +528,8 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
 ### Krok 3.1: Instalacja Node.js przez nvm (zalecane)
 
+> **Uwaga:** Budowa storefrontu w tej instrukcji jest wykonywana **w kontenerze PHP** (sekcja 11). Kontener ma Node.js dzięki Dockerfile (sekcja „Struktura projektu”). Instalacja Node.js i npm na hoście (poniżej) jest **opcjonalna** — przydatna m.in. gdy chcesz uruchamiać polecenia npm poza kontenerem.
+
 1. **Otwórz Ubuntu (WSL)**
 
 2. **Zainstaluj nvm (Node Version Manager):**
@@ -693,7 +701,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    docker compose build
    ```
 
-   **Uwaga:** To może potrwać 10-20 minut przy pierwszym uruchomieniu, ponieważ Docker pobiera i buduje wszystkie potrzebne komponenty.
+   > **Uwaga:** To może potrwać 10-20 minut przy pierwszym uruchomieniu, ponieważ Docker pobiera i buduje wszystkie potrzebne komponenty.
 
 ### Krok 6.2: Uruchomienie kontenerów
 
@@ -746,7 +754,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    composer install --no-interaction --prefer-dist
    ```
 
-   **Uwaga:** To może potrwać 15-30 minut, ponieważ pobiera wszystkie pakiety PHP wymagane przez OroCommerce.
+   > **Uwaga:** To może potrwać 15-30 minut, ponieważ pobiera wszystkie pakiety PHP wymagane przez OroCommerce.
 
 4. **Poczekaj na zakończenie instalacji**
 
@@ -814,7 +822,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
      --no-sample-data
    ```
 
-   **Uwaga:** Instalacja może potrwać 10-20 minut. Nie zamykaj terminala podczas instalacji.
+   > **Uwaga:** Instalacja może potrwać 10-20 minut. Nie zamykaj terminala podczas instalacji.
 
    **Parametry do zmiany (opcjonalnie):**
 
@@ -850,6 +858,13 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 ## 11. Budowa storefrontu
 
+**Wymaganie:** Kontener PHP musi zawierać Node.js i npm (z Dockerfile – patrz sekcja „Struktura projektu”). Jeśli dopiero dodałeś Node do Dockerfile, przebuduj obraz i uruchom ponownie kontenery:
+
+```bash
+   docker compose build php
+   docker compose up -d
+```
+
 ### Krok 8.1: Instalacja zależności Node.js
 
 1. **Wejdź do kontenera PHP:**
@@ -870,7 +885,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    npm install
    ```
 
-   **Uwaga:** To może potrwać 5-10 minut.
+   > **Uwaga:** To może potrwać 5-10 minut.
 
 ### Krok 8.2: Budowa zasobów frontendowych
 
@@ -880,7 +895,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    npm run build
    ```
 
-   **Uwaga:** To może potrwać 5-10 minut.
+   > **Uwaga:** To może potrwać 5-10 minut.
 
 2. **Lub dla trybu deweloperskiego (z automatycznym odświeżaniem):**
 
@@ -888,7 +903,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    npm run watch
    ```
 
-   **Uwaga:** To polecenie działa w tle i automatycznie odbudowuje zasoby przy zmianach. Możesz je uruchomić w osobnym oknie terminala.
+   > **Uwaga:** To polecenie działa w tle i automatycznie odbudowuje zasoby przy zmianach. Możesz je uruchomić w osobnym oknie terminala.
 
 3. **Wyjdź z kontenera:**
    ```bash
@@ -914,6 +929,8 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    ```bash
    php bin/console oro:assets:install --symlink --env=dev
    ```
+
+   > **Uwaga:** Ta komenda publikuje assety (symlink) i uruchamia budowę assetów; wymaga Node.js i npm w kontenerze (z Dockerfile). W razie błędu „Js engine path is not found” zobacz sekcję „Rozwiązywanie problemów”.
 
 4. **Wyczyść cache:**
 
@@ -1156,6 +1173,26 @@ source ~/.bashrc
    docker compose exec php npm --version
    ```
 2. Jeśli wersje są nieprawidłowe, zainstaluj Node.js w kontenerze lub użyj lokalnej instalacji w WSL
+
+### Problem: „Js engine path is not found” przy `oro:assets:install`
+
+**Przyczyna:** Komenda `oro:assets:install` uruchamia także budowę assetów (`oro:assets:build`), która wymaga Node.js i npm w kontenerze. Błąd oznacza, że w kontenerze nie ma Node/npm albo cache aplikacji trzyma pustą ścieżkę.
+
+**Rozwiązanie:**
+
+1. Upewnij się, że w `docker/php/Dockerfile` jest blok instalacji Node.js 22 (sekcja „Struktura projektu”).
+2. Przebuduj obraz i uruchom kontenery:
+   ```bash
+   docker compose build php
+   docker compose up -d
+   ```
+3. W kontenerze wyczyść cache, a potem ponów instalację assetów:
+   ```bash
+      docker compose exec php php bin/console cache:clear --env=dev
+      docker compose exec php php bin/console oro:assets:install --symlink --env=dev
+   ```
+4. Sprawdź, że w kontenerze jest Node: `docker compose exec php node -v` i `docker compose exec php npm -v`
+   
 
 ### Problem: Błąd połączenia z bazą danych
 
