@@ -20,6 +20,8 @@
 14. [Przydatne komendy](#przydatne-komendy)
 15. [Gratulacje](#gratulacje)
 
+**Numeracja:** Rozdziały mają numery **1.–15.** W sekcjach 3, 5, 6, 7, 8, 9, 10, 11, 12 kroki wykonawcze mają formę **Krok X.Y** — X odpowiada numerowi sekcji (3, 5, 6, 7, 8, 9, 10, 11, 12), Y to podkrok. Sekcja 4 (Integracja Cursor) nie ma numeracji „Krok”.
+
 ---
 
 ## 1. Wymagania wstępne
@@ -207,7 +209,7 @@ memory_limit = 1024M
 
 ## 3. Instalacja WSL2 i Ubuntu
 
-### Krok 1.1: Włączenie WSL w Windows
+### Krok 3.1: Włączenie WSL w Windows
 
 1. **Otwórz PowerShell jako Administrator:**
 
@@ -231,7 +233,7 @@ memory_limit = 1024M
 
 4. **Zrestartuj komputer** (będzie to wymagane)
 
-### Krok 1.2: Instalacja Ubuntu
+### Krok 3.2: Instalacja Ubuntu
 
 1. **Po restarcie, otwórz PowerShell jako Administrator** (jeśli jeszcze nie jest otwarty):
 
@@ -265,7 +267,7 @@ memory_limit = 1024M
 
    Powinieneś zobaczyć Ubuntu na liście z wersją WSL (powinno być 2).
 
-### Krok 1.3: Pierwsze uruchomienie Ubuntu
+### Krok 3.3: Pierwsze uruchomienie Ubuntu
 
 Po zakończeniu instalacji, musisz uruchomić Ubuntu. Masz kilka opcji:
 
@@ -309,7 +311,7 @@ Po zakończeniu instalacji, musisz uruchomić Ubuntu. Masz kilka opcji:
 - Utwórz nazwę użytkownika (może być małymi literami, bez spacji)
 - Utwórz hasło (wpisz je dwukrotnie - nie zobaczysz znaków podczas wpisywania, to normalne)
 
-### Krok 1.4: Aktualizacja Ubuntu
+### Krok 3.4: Aktualizacja Ubuntu
 
 Po pierwszym uruchomieniu Ubuntu, wykonaj aktualizację systemu:
 
@@ -417,7 +419,7 @@ Po otwarciu projektu w Cursorze, sprawdź czy:
 
 ## 5. Instalacja Docker
 
-### Krok 2.1: Instalacja Docker w Ubuntu (WSL)
+### Krok 5.1: Instalacja Docker w Ubuntu (WSL)
 
 1. **Otwórz Ubuntu (WSL)** - użyj jednej z metod opisanych w Kroku 1.3
 
@@ -470,7 +472,7 @@ Po otwarciu projektu w Cursorze, sprawdź czy:
    - Zamknij Ubuntu
    - Otwórz Ubuntu ponownie
 
-### Krok 2.2: Konfiguracja Dockera w WSL
+### Krok 5.2: Konfiguracja Dockera w WSL
 
 1. **Uruchom usługę Docker:**
 
@@ -507,7 +509,7 @@ Po otwarciu projektu w Cursorze, sprawdź czy:
    source ~/.bashrc
    ```
 
-### Krok 2.3: Weryfikacja instalacji Docker
+### Krok 5.3: Weryfikacja instalacji Docker
 
 Sprawdź czy Docker działa:
 
@@ -526,7 +528,7 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
 ## 6. Instalacja Node.js i npm
 
-### Krok 3.1: Instalacja Node.js przez nvm (zalecane)
+### Krok 6.1: Instalacja Node.js przez nvm (zalecane)
 
 > **Uwaga:** Budowa storefrontu w tej instrukcji jest wykonywana **w kontenerze PHP** (sekcja 11). Kontener ma Node.js dzięki Dockerfile (sekcja „Struktura projektu”). Instalacja Node.js i npm na hoście (poniżej) jest **opcjonalna** — przydatna m.in. gdy chcesz uruchamiać polecenia npm poza kontenerem.
 
@@ -578,7 +580,7 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
 ## 7. Pobranie projektu
 
-### Krok 4.1: Klonowanie repo setup (Docker/konfiguracja)
+### Krok 7.1: Klonowanie repo setup (Docker/konfiguracja)
 
 1. **Przejdź do katalogu domowego (zalecane):**
 
@@ -597,7 +599,7 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
    > **Uwaga:** Zastąp `<URL_REPO_SETUP>` adresem do repo z dockerem i instrukcjami (np. `orocommerce-dev-setup`).
 
-### Krok 4.2: Klonowanie repo aplikacji (`orocommerce-application`)
+### Krok 7.2: Klonowanie repo aplikacji (`orocommerce-application`)
 
 1. **Sklonuj Twoje repo aplikacji do katalogu projektu:**
 
@@ -638,7 +640,7 @@ Powinny wyświetlić się numery wersji. Jeśli pojawi się błąd uprawnień, u
 
 ## 8. Konfiguracja projektu
 
-### Krok 5.1: Przejście do katalogu projektu
+### Krok 8.1: Przejście do katalogu projektu
 
 Upewnij się, że jesteś w katalogu projektu:
 
@@ -646,7 +648,7 @@ Upewnij się, że jesteś w katalogu projektu:
 cd ~/orocommerce-dev
 ```
 
-### Krok 5.2: Sprawdzenie struktury projektu
+### Krok 8.2: Sprawdzenie struktury projektu
 
 Sprawdź czy masz poprawną strukturę projektu (patrz sekcja "Struktura projektu" na początku instrukcji):
 
@@ -662,7 +664,7 @@ Powinieneś zobaczyć:
 - `docker-compose.yml` - główny plik konfiguracyjny Docker Compose
 - `orocommerce-application/` - katalog z aplikacją OroCommerce (sklonowany z Git)
 
-### Krok 5.3: Konfiguracja pliku .env-app.local
+### Krok 8.3: Konfiguracja pliku .env-app.local
 
 Plik `.env-app.local` trzymamy w repo setup w katalogu `env/` jako template, a potem kopiujemy go do repo aplikacji.
 Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane dostępowe).
@@ -684,7 +686,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 ## 9. Uruchomienie projektu
 
-### Krok 6.1: Budowa kontenerów Docker
+### Krok 9.1: Budowa kontenerów Docker
 
 1. **Upewnij się, że jesteś w głównym katalogu projektu:**
 
@@ -703,7 +705,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
    > **Uwaga:** To może potrwać 10-20 minut przy pierwszym uruchomieniu, ponieważ Docker pobiera i buduje wszystkie potrzebne komponenty.
 
-### Krok 6.2: Uruchomienie kontenerów
+### Krok 9.2: Uruchomienie kontenerów
 
 1. **Uruchom wszystkie kontenery:**
 
@@ -734,7 +736,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 ## 10. Instalacja OroCommerce
 
-### Krok 7.1: Instalacja zależności PHP (Composer)
+### Krok 10.1: Instalacja zależności PHP (Composer)
 
 1. **Wejdź do kontenera PHP:**
 
@@ -758,7 +760,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 4. **Poczekaj na zakończenie instalacji**
 
-### Krok 7.2: Konfiguracja uprawnień
+### Krok 10.2: Konfiguracja uprawnień
 
 1. **Nadal w kontenerze PHP, sprawdź aktualne uprawnienia:**
 
@@ -791,7 +793,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    exit
    ```
 
-### Krok 7.3: Instalacja aplikacji OroCommerce
+### Krok 10.3: Instalacja aplikacji OroCommerce
 
 1. **Wejdź ponownie do kontenera PHP:**
 
@@ -841,7 +843,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    exit
    ```
 
-### Krok 7.4: Weryfikacja instalacji
+### Krok 10.4: Weryfikacja instalacji
 
 1. **Sprawdź czy baza danych została utworzona:**
 
@@ -865,7 +867,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    docker compose up -d
 ```
 
-### Krok 8.1: Instalacja zależności Node.js
+### Krok 11.1: Instalacja zależności Node.js
 
 1. **Wejdź do kontenera PHP:**
 
@@ -887,7 +889,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
    > **Uwaga:** To może potrwać 5-10 minut.
 
-### Krok 8.2: Budowa zasobów frontendowych
+### Krok 11.2: Budowa zasobów frontendowych
 
 1. **Nadal w kontenerze PHP, zbuduj zasoby produkcyjne:**
 
@@ -910,7 +912,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
    exit
    ```
 
-### Krok 8.3: Instalacja zasobów OroCommerce
+### Krok 11.3: Instalacja zasobów OroCommerce
 
 1. **Wejdź do kontenera PHP:**
 
@@ -947,7 +949,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 ## 12. Dostęp do aplikacji
 
-### Krok 9.1: Otwarcie aplikacji w przeglądarce
+### Krok 12.1: Otwarcie aplikacji w przeglądarce
 
 1. **Otwórz przeglądarkę internetową** (Chrome, Firefox, Edge)
 
@@ -959,7 +961,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 3. **Powinieneś zobaczyć stronę logowania OroCommerce**
 
-### Krok 9.2: Logowanie do panelu administracyjnego
+### Krok 12.2: Logowanie do panelu administracyjnego
 
 1. **Użyj danych logowania podanych podczas instalacji:**
 
@@ -970,7 +972,7 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 3. **Powinieneś zobaczyć panel administracyjny OroCommerce**
 
-### Krok 9.3: Dostęp do storefrontu
+### Krok 12.3: Dostęp do storefrontu
 
 Storefront OroCommerce jest dostępny pod tym samym adresem. W zależności od konfiguracji, możesz potrzebować:
 

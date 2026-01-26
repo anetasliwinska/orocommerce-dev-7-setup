@@ -330,7 +330,9 @@ Ważne:
 
 ---
 
-## 7.0) (OroCommerce 6.x) Dodaj theme do `oro_layout.enabled_themes` (żeby była dostępna w UI)
+## 7) Aktywacja theme (config + panel admina)
+
+### 7.1. (OroCommerce 6.x) Dodaj theme do `oro_layout.enabled_themes` (żeby była dostępna w UI)
 
 W OroCommerce 6.x (Theme Configurations) theme musi być **włączona na liście `enabled_themes`**, inaczej nie pojawi się w panelu do wyboru.
 
@@ -353,7 +355,7 @@ Następnie wyczyść cache:
 php bin/console cache:clear --env=dev
 ```
 
-## 7) Aktywacja theme w panelu admina (/admin/)
+### 7.2. Aktywacja theme w panelu admina (/admin/)
 
 W OroCommerce storefront theme ustawiasz zwykle **per Website** (scope).
 
@@ -368,6 +370,18 @@ Po zmianie theme często potrzebujesz:
 ```bash
 php bin/console cache:clear --env=dev
 ```
+
+#### Gdzie jest „scope”? (brak osobnego pola Scope)
+
+W OroCommerce **scope to nie jest osobne pole na stronie** — scope wynika z tego, **którą stronę konfiguracji** edytujesz:
+
+- **System → Configuration** → Commerce → Design → Theme  
+  To jest konfiguracja na poziomie **organizacji / globalnym**. Wartości mogą być dziedziczone przez witryny. Nie ma tu rozwijanej listy „Scope” — jesteś na jednym, wspólnym poziomie.
+
+- **System → Websites** → [lista witryn] → wejście w **konfigurację danej witryny** → Commerce → Design → Theme  
+  To jest konfiguracja **dla konkretnej witryny** (scope „Website”). Żeby tam wejść: w menu **System → Websites** znajdź witrynę, pod którą działa Twój sklep (np. z adresu storefrontu), a potem użyj akcji przy tej witrynie (np. **Configuration**, **Configure**, ikona zębatki lub „More options” → Configuration). Dopiero na tej stronie ustawienia Theme dotyczą **tej jednej witryny**.
+
+Jeśli theme ustawiona w **System → Configuration** nie działa na sklepie, ustaw ją w konfiguracji **konkretnej witryny** (System → Websites → [Twoja witryna] → Configuration → Commerce → Design → Theme). Po zapisaniu zrób `cache:clear` i twarde odświeżenie strony sklepu.
 
 ---
 
@@ -406,4 +420,56 @@ php bin/console cache:clear --env=dev
   - `php bin/console cache:clear --env=dev`
 - **Edytuję nie tę theme**:
   - storefront theme jest konfigurowany per Website (nie myl z back-office).
+
+**Brak menu „Websites”?** W OroCommerce **Community** nie ma pozycji System → Websites (to funkcja Enterprise). Theme sklepu ustaw wówczas w pliku **`config/config.yml`**: w sekcji `oro_layout` dodaj `active_theme: custom_storefront`, zapisz, wykonaj `php bin/console cache:clear --env=dev` i odśwież sklep (Ctrl+Shift+R).
+
+**Obejście:** Gdy strona wciąż ładuje `build/default/css/styles.css`, uruchom `./scripts/use-custom-storefront-css.sh` w katalogu aplikacji — skrypt ustawia symlink, więc „default” serwuje Twoje style. Po kolejnym `npm run build` uruchom go ponownie.
+
+### 9.0.1. Skrypt `use-custom-storefront-css.sh` (gdy strona ładuje „default" zamiast Twojej theme)
+
+Skrypt ustawia symlink: `build/default/css/styles.css` wskazuje na `build/custom_storefront/css/styles.css`, więc Twoje style są serwowane nawet gdy aplikacja generuje link do „default".
+
+- **Lokalizacja:** `scripts/use-custom-storefront-css.sh` (w katalogu aplikacji, np. `orocommerce-application/`).
+- **Kiedy:** Gdy w DevTools → Network wciąż ładuje się `build/default/css/styles.css` zamiast `build/custom_storefront/`.
+- **Uruchomienie** (z katalogu aplikacji):
+  ```bash
+  ./scripts/use-custom-storefront-css.sh
+  ```
+  W kontenerze (gdy aplikacja w `/var/www/orocommerce`):
+  ```bash
+  cd /var/www/orocommerce
+  ./scripts/use-custom-storefront-css.sh
+  ```
+- Po kolejnym **`npm run build`** uruchom skrypt ponownie (build może nadpisać plik).
+
+### 9.1. Build jest OK, ale strona dalej ładuje styl z „default” (nie widzę swojego CSS)
+
+**Objaw:** W pliku `public/build/custom_storefront/css/styles.css` są Twoje reguły (możesz to sprawdzić przez wyszukanie w pliku np. klasy z Twojego SCSS), ale w przeglądarce w zakładce Network widać, że ładuje się `build/default/css/styles.css`.
+
+**Przyczyna:** Dla bieżącej witryny (website) nadal używana jest theme **default**, a nie **custom_storefront**. Assety są wybierane wg aktywnej theme dla danego scope (Website).
+
+**Co zrobić:**
+
+1. **Przypisz Theme Configuration do witryny**
+   - **Opcja A – konfiguracja globalna/organizacji:**  
+     **System → Configuration** → w drzewie: **Commerce → Design → Theme**. Ustaw **Theme Configuration** na **„Custom Storefront (dev)”**, odznacz **Use Default**, zapisz (**Save settings**). Jeśli sklep nadal ładuje `default`, użyj opcji B.
+   - **Opcja B – konfiguracja konkretnej witryny (gdzie „scope” to wybór witryny):**  
+     Wejdź w **System → Websites**. Na liście znajdź witrynę, pod którą działa Twój sklep (ta z adresu storefrontu). Otwórz **konfigurację tej witryny** (akcja przy wierszu: Configuration / Configure / ikona zębatki lub More options → Configuration). W drzewie po lewej: **Commerce → Design → Theme**. Ustaw **Theme Configuration** na **„Custom Storefront (dev)”**, odznacz **Use Default**, zapisz. Tu nie ma osobnego pola „Scope” — jesteś już w konfiguracji tej jednej witryny.
+   - Zapisz ustawienia (**Save settings**).
+
+2. **Wyczyść cache i odśwież stronę**
+   ```bash
+   php bin/console cache:clear --env=dev
+   ```
+   Potem w przeglądarce: **twarde odświeżenie** (Ctrl+Shift+R) lub tryb incognito, żeby pominąć cache przeglądarki.
+
+3. **Sprawdź, co faktycznie się ładuje**
+   - Na stronie sklepu (front, nie /admin/) otwórz DevTools → zakładka **Network** → filtr **CSS**.
+   - Odśwież stronę. Powinien się załadować plik z ścieżką zawierającą **`build/custom_storefront/`**, a nie tylko `build/default/`. Jeśli nadal jest `default`, theme dla tej witryny wciąż nie jest ustawiona na Custom Storefront — wróć do kroku 1 i sprawdź scope oraz zapis.
+
+4. **Weryfikacja, że Twoje style są w buildzie**
+   ```bash
+   grep -l 'twoja-unikalna-klasa-lub-kolor' public/build/custom_storefront/css/styles.css
+   ```
+   Jeśli polecenie znajdzie plik, build jest poprawny; problem leży wyłącznie w użyciu theme (kroki 1–3).
 
