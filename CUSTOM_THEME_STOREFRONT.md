@@ -209,15 +209,15 @@ php bin/console oro:assets:install --symlink --env=dev
 Następnie uruchom build, żeby SCSS został skompilowany do finalnego CSS:
 
 ```bash
-npm run watch
-# albo produkcyjnie:
-# npm run build
+php bin/console oro:assets:build custom_storefront
+# albo dev‑watch tylko dla tej theme:
+# php bin/console oro:assets:build custom_storefront --watch
 ```
 
 Dlaczego to jest potrzebne?
 - `oro:assets:install --symlink` publikuje pliki z `Resources/public` do `public/bundles/<bundle_alias>/....`
 - W `assets.yml` podajesz ścieżki w formacie `bundles/<bundle_alias>/...`, więc bez tego kroku wpis może wskazywać na plik, którego jeszcze nie ma w `public/`.
-- Samo `oro:assets:install` nie kompiluje SCSS — kompilację robi dopiero `npm run watch` / `npm run build`.
+- Samo `oro:assets:install` nie kompiluje SCSS — kompilację robi dopiero `php bin/console oro:assets:build` (z opcjonalnym `--watch`).
 
 ## 4) Dołóż własny JS (opcjonalnie) przez `jsmodules.yml`
 
@@ -391,15 +391,18 @@ Po dodaniu/zmianie plików w `Resources/public` uruchom (w kontenerze `php`):
 
 ```bash
 cd /var/www/orocommerce
-php bin/console assets:install --symlink --env=dev
+php bin/console oro:assets:install --symlink --env=dev
 ```
 
-Następnie build:
+Następnie build całości albo tylko naszej themy:
 
 ```bash
-npm run watch
-# albo produkcyjnie:
-# npm run build
+# tutaj budujemy całość
+php bin/console oro:assets:build
+# tutaj budujem tylko naszę customową theme
+# php bin/console oro:assets:build custom_storefront
+# albo dev‑watch:
+# php bin/console oro:assets:build custom_storefront --watch
 ```
 
 I na koniec (gdy coś “nie wchodzi”):
@@ -414,7 +417,7 @@ php bin/console cache:clear --env=dev
 
 - **Nie widzę swoich stylów**:
   - czy `oro:assets:install --symlink` było uruchomione po dodaniu plików?
-  - czy działa `npm run watch` / zrobiłeś `npm run build`?
+  - czy wykonałaś `php bin/console oro:assets:build` (lub `--watch`)?
   - czy w `assets.yml` ścieżka do pliku ma poprawny `bundles/<bundle_alias>/...`?
 - **Zmieniłem layout/theme.yml i nic**:
   - `php bin/console cache:clear --env=dev`
@@ -423,24 +426,7 @@ php bin/console cache:clear --env=dev
 
 **Brak menu „Websites”?** W OroCommerce **Community** nie ma pozycji System → Websites (to funkcja Enterprise). Theme sklepu ustaw wówczas w pliku **`config/config.yml`**: w sekcji `oro_layout` dodaj `active_theme: custom_storefront`, zapisz, wykonaj `php bin/console cache:clear --env=dev` i odśwież sklep (Ctrl+Shift+R).
 
-**Obejście:** Gdy strona wciąż ładuje `build/default/css/styles.css`, uruchom `./scripts/use-custom-storefront-css.sh` w katalogu aplikacji — skrypt ustawia symlink, więc „default” serwuje Twoje style. Po kolejnym `npm run build` uruchom go ponownie.
-
-### 9.0.1. Skrypt `use-custom-storefront-css.sh` (gdy strona ładuje „default" zamiast Twojej theme)
-
-Skrypt ustawia symlink: `build/default/css/styles.css` wskazuje na `build/custom_storefront/css/styles.css`, więc Twoje style są serwowane nawet gdy aplikacja generuje link do „default".
-
-- **Lokalizacja:** `scripts/use-custom-storefront-css.sh` (w katalogu aplikacji, np. `orocommerce-application/`).
-- **Kiedy:** Gdy w DevTools → Network wciąż ładuje się `build/default/css/styles.css` zamiast `build/custom_storefront/`.
-- **Uruchomienie** (z katalogu aplikacji):
-  ```bash
-  ./scripts/use-custom-storefront-css.sh
-  ```
-  W kontenerze (gdy aplikacja w `/var/www/orocommerce`):
-  ```bash
-  cd /var/www/orocommerce
-  ./scripts/use-custom-storefront-css.sh
-  ```
-- Po kolejnym **`npm run build`** uruchom skrypt ponownie (build może nadpisać plik).
+**Obejście symlinkiem (historyczne):** kiedyś można było tymczasowo podmienić `build/default/css/styles.css` na symlink do `build/custom_storefront/css/styles.css`. Teraz zalecane jest ustawienie poprawnej theme i przebudowa przez `php bin/console oro:assets:build`.
 
 ### 9.1. Build jest OK, ale strona dalej ładuje styl z „default” (nie widzę swojego CSS)
 

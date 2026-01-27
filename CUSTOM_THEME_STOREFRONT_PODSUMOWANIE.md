@@ -14,7 +14,7 @@ Skrót: które kroki z instrukcji `CUSTOM_THEME_STOREFRONT.md` są wykonane, a k
 | **3.1** | **SCSS** — plik `Resources/public/custom_storefront/scss/styles.scss` z własnymi stylami |
 | **3.2** | **assets.yml** — wpis do `styles.inputs` z ścieżką `bundles/customstorefronttheme/custom_storefront/scss/styles.scss` |
 | **3.3** | **Instalacja assetów** — `oro:assets:install --symlink --env=dev` |
-| **3.3** | **Build** — `npm run build` (w kontenerze z Node/npm w Dockerze) |
+| **3.3** | **Build** — `php bin/console oro:assets:build custom_storefront` |
 | **7.1** | **config.yml** — `oro_layout.enabled_themes`: default, custom_storefront |
 | **7.1** | **config.yml** — `oro_layout.active_theme: custom_storefront` (dla Community bez menu Websites) |
 | **7.2** | **Theme Configuration** — utworzona konfiguracja „Custom Storefront (dev)” w System → Theme Configurations |
@@ -41,8 +41,22 @@ Skrót: które kroki z instrukcji `CUSTOM_THEME_STOREFRONT.md` są wykonane, a k
 
 ---
 
+## Dwa typowe problemy i rozwiązania
+
+### 1. Strona ładuje style z theme „default” zamiast „custom_storefront”
+- **Skrypt (z katalogu orocommerce-dev):** `./scripts/fix-theme-configuration-db.sh` — ustawia `theme_configuration = 2` w bazie i czyści cache.
+- **Obejście bez zmiany theme w panelu:** `orocommerce-application/scripts/use-custom-storefront-css.sh` — symlink `build/default/css/styles.css` → `custom_storefront`, wtedy adres w HTML zostaje „default”, ale treść to Twoje style.
+
+### 2. Moje style z pliku SCSS nie trafiają do wynikowego CSS
+- **Przyczyna:** Build SCSS szuka plików w `public/bundles/customstorefronttheme/...`. Jeśli nie ma tam katalogu (bo nie uruchomiono instalacji assetów), import Twojego `styles.scss` się nie ładuje i końcowy `styles.css` nie zawiera Twoich reguł.
+- **Rozwiązanie — prawidłowa kolejność:**
+  1. Zainstaluj assety: `php bin/console oro:assets:install --symlink --env=dev` (z katalogu `orocommerce-application` albo w kontenerze PHP).
+  2. Dopiero potem: `php bin/console oro:assets:build custom_storefront` (lub z `--watch`).
+
+---
+
 ## Ważne ścieżki i pliki
 
 - Instrukcja krok po kroku: `CUSTOM_THEME_STOREFRONT.md`
-- Skrypt obejścia (gdy strona ładuje default zamiast custom_storefront): `orocommerce-application/scripts/use-custom-storefront-css.sh`
+- Skrypt: ustawienie theme w bazie: `scripts/fix-theme-configuration-db.sh`
 - Theme: `custom_storefront`, bundle: `CustomStorefrontThemeBundle`, alias: `customstorefronttheme`

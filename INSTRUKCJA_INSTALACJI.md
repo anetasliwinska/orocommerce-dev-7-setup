@@ -891,18 +891,18 @@ Tego pliku **nie commitujemy** (to konfiguracja lokalna, często zawiera dane do
 
 ### Krok 11.2: Budowa zasobów frontendowych
 
-1. **Nadal w kontenerze PHP, zbuduj zasoby produkcyjne:**
+1. **Nadal w kontenerze PHP, zbuduj zasoby frontendowe:**
 
    ```bash
-   npm run build
+   php bin/console oro:assets:build
    ```
 
-   > **Uwaga:** To może potrwać 5-10 minut.
+   > **Uwaga:** To może potrwać 5–10 minut.
 
-2. **Lub dla trybu deweloperskiego (z automatycznym odświeżaniem):**
+2. **Lub w trybie deweloperskim (z automatycznym odświeżaniem, np. tylko dla storefrontu):**
 
    ```bash
-   npm run watch
+   php bin/console oro:assets:build custom_storefront --watch
    ```
 
    > **Uwaga:** To polecenie działa w tle i automatycznie odbudowuje zasoby przy zmianach. Możesz je uruchomić w osobnym oknie terminala.
@@ -1036,14 +1036,14 @@ Jeśli OroCommerce i storefront były już wcześniej zainstalowane i działały
    ```bash
    docker compose exec php bash
    cd /var/www/orocommerce
-   npm run watch
+   php bin/console oro:assets:build custom_storefront --watch
    ```
 
    > **Uwaga:**
    >
    > - To polecenie działa w tle i automatycznie odbudowuje zasoby przy zmianach w plikach JavaScript/CSS
    > - Możesz zostawić to polecenie uruchomione w osobnym terminalu
-   > - Aby zatrzymać watch, naciśnij `Ctrl + C` w terminalu, gdzie działa `npm run watch`
+   > - Aby zatrzymać watch, naciśnij `Ctrl + C` w terminalu, gdzie działa komenda z `--watch`
    > - Jeśli nie potrzebujesz automatycznego odświeżania, możesz pominąć ten krok - aplikacja będzie działać z ostatnio zbudowanymi zasobami
 
 > **Dlaczego to wystarczy?**
@@ -1103,7 +1103,7 @@ if [ -f ~/orocommerce-dev/docker-compose.yml ]; then
     # Poczekaj chwilę na uruchomienie kontenerów
     sleep 5
     # Uruchom watch w tle w kontenerze PHP
-    docker compose -f ~/orocommerce-dev/docker-compose.yml exec -d php bash -c "cd /var/www/orocommerce && npm run watch"
+    docker compose -f ~/orocommerce-dev/docker-compose.yml exec -d php bash -c "cd /var/www/orocommerce && php bin/console oro:assets:build custom_storefront --watch"
 fi
 ```
 
@@ -1116,8 +1116,8 @@ source ~/.bashrc
 > **Uwaga:**
 >
 > - Ta opcja jest przydatna tylko podczas rozwoju aplikacji
-> - Watch będzie działał w tle - możesz sprawdzić logi: `docker compose logs php | grep -i watch`
-> - Aby zatrzymać watch, wykonaj: `docker compose exec php pkill -f "npm run watch"`
+> - Watch będzie działał w tle - możesz sprawdzić logi: `docker compose logs php | grep -i oro:assets:build`
+> - Aby zatrzymać watch, wykonaj: `docker compose exec php pkill -f "oro:assets:build custom_storefront --watch"`
 > - Jeśli nie potrzebujesz automatycznego odświeżania, możesz pominąć tę konfigurację
 
 ### Problem: Docker nie uruchamia się

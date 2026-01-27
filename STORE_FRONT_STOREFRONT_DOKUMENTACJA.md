@@ -153,8 +153,8 @@ Dlatego w Oro theme to nie tylko „skórka CSS”, tylko realnie część mecha
 ### 1.7. CSS/JS są dołączane zgodnie z konfiguracją assetów theme i buildem
 W Oro 6.1 build assetów jest spięty przez webpack (z builderem Oro, m.in. `.enableLayoutThemes()`), a typowy workflow to:
 
-- `npm run watch` (dev, automatyczna przebudowa),
-- `npm run build` (production build).
+- `php bin/console oro:assets:build` (build wszystkich theme),
+- `php bin/console oro:assets:build custom_storefront --watch` (dev‑watch tylko dla Twojej theme).
 
 Po stronie Oro często dochodzi jeszcze instalacja assetów bundle’i do publicznego katalogu (np. `oro:assets:install --symlink`).
 
@@ -305,7 +305,7 @@ Gdy masz element na stronie i chcesz go zmienić, idziesz tą ścieżką:
 
 - **Krok D: Czemu zmiany nie wchodzą?**
   - sprawdzasz cache (`cache:clear`),
-  - sprawdzasz build (`npm run watch` / `npm run build`),
+  - sprawdzasz build (`php bin/console oro:assets:build` / `--watch`),
   - sprawdzasz instalację assetów (`oro:assets:install --symlink`),
   - sprawdzasz, czy edytujesz właściwy theme (aktywny dla storefrontu, nie tylko back-office).
 
