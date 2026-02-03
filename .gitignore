@@ -1,4 +1,4 @@
-/orocommerce-application/
+/oro-playground/
 
 # Local env file (keep locally, don't push secrets)
 /.env
